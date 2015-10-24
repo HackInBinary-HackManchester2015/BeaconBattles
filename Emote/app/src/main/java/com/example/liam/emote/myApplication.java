@@ -10,6 +10,10 @@ import android.widget.TextView;
 
 import com.estimote.sdk.Beacon;
 import java.util.List;
+import java.net.URL;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+
 
 import java.util.UUID;
 
@@ -25,9 +29,10 @@ public class myApplication extends Application {
             @Override
             public void onServiceReady() {
                 beaconManager.startMonitoring(new Region("monitored region", null,null,null));
-                Toast.makeText(getApplicationContext(), "Monitoring", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 
         beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
             @Override
@@ -36,9 +41,6 @@ public class myApplication extends Application {
                 for(Beacon beacon : list) {
                     content = content + beacon.getMacAddress() + ", ";
                 }
-                
-                Toast.makeText(getApplicationContext(),region.getIdentifier() +
-                        ", " + content ,Toast.LENGTH_LONG).show();
                showNotification("You have entered a battle", "You have entered a battle with a monster click to fight and check it out.");
             }
 
