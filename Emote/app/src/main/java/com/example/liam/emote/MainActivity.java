@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.view.View;
@@ -39,6 +38,7 @@ import com.estimote.sdk.Beacon;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import beans.EncounterBean;
 import beans.UserBean;
@@ -163,43 +163,56 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(APP_NAME, jsonResult);
                 runBattle();
             }
-
         }
     }
 
-    public void runBattle(){
+    public void runBattle() {
 
-        if(fightingMonster != null) {
+        if (fightingMonster != null) {
 
             // load monster on screen
             int counter = 0;
-            while(fightingMonster.getImage() == null && counter != 1000){}
+            while (fightingMonster.getImage() == null && counter != 1000) {
+            }
 
             final ProgressBar progBar = (ProgressBar) findViewById(R.id.progressBar);
             progBar.setMax(fightingMonster.getHealth());
             progBar.setProgress(fightingMonster.getHealth());
             ImageView imgV = (ImageView) findViewById(R.id.myImageView);
+
+            final ProgressBar userHealthBar = (ProgressBar) findViewById(R.id.userHealthBar);
+            user.setHealth(12 * user.getLevel());
+            userHealthBar.setMax(user.getHealth());
+            userHealthBar.setProgress(user.getHealth());
+            Random rndNumGen = new Random();
+            //Generate 2 numbers (one for each combatant) who ever gets higher wins
+            int playerScore = rndNumGen.nextInt(10);
+            int monsterScore = rndNumGen.nextInt(9);
             imgV.setImageBitmap(fightingMonster.getImage());
             imgV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fightingMonster.hit();
-                    progBar.setProgress(fightingMonster.getHealth());
+                    Random rndNumGen = new Random();
+                    //Generate 2 numbers (one for each combatant) who ever gets higher wins
+                    int playerScore = rndNumGen.nextInt(10);
+                    int monsterScore = rndNumGen.nextInt(9);
+                    if (playerScore >= monsterScore) {
+                        fightingMonster.hit();
+                        userHealthBar.setProgress(user.getHealth());
+                    }
+                    else if (monsterScore >= playerScore){
+                        user.hit();
+                        progBar.setProgress(fightingMonster.getHealth());
+                    }
                     if (fightingMonster.getHealth() == 0) {
                         Toast.makeText(MainActivity.this, "Health 0", Toast.LENGTH_LONG).show();
                         user.increaseLevel();
                         dbhelper.updateUser(user);
 
-                        loadMainPage("Congratulations you defeated " + fightingMonster.getName() + " your new level is "+ user.getLevel());
+                        loadMainPage("Congratulations you defeated " + fightingMonster.getName() + " your new level is " + user.getLevel());
                     }
                 }
             });
-
-            //TextView textV = (TextView) findViewById(R.id.textView);
-            //textV.setText("Monster Name: " + fightingMonster.getName() + "/n Level: " + fightingMonster.getLevel());
-        }
-        else{
-            Log.e("BITMAP", "Failed");
         }
     }
 

@@ -64,6 +64,7 @@ public class Monster {
                 stream = response.body().byteStream();
                 bitmap = BitmapFactory.decodeStream(stream);
 
+
                 return "Worked";
             } catch (IOException ex) {
                 Log.e("MONSTER_CLASS", "Could not retreive JSON from server:");

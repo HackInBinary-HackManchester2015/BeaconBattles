@@ -10,6 +10,7 @@ public class UserBean
     private int id;
     private String username;
     private int level;
+    private int health;
 
     public UserBean()   //Blank contructor required by JavaBean Standard
     {
@@ -54,5 +55,17 @@ public class UserBean
 
     public void increaseLevel(){
         level ++;
+    }
+
+    public void hit(){
+        health -=4;
+    }
+
+    public void setHealth(int health){
+        this.health = health;
+    }
+
+    public int getHealth(){
+        return health;
     }
 }
