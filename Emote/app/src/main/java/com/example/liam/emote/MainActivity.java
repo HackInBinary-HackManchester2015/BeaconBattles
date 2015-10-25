@@ -11,7 +11,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +35,12 @@ import android.content.*;
 import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import beans.EncounterBean;
 import beans.UserBean;
 import database.DatabaseHelper;
 
@@ -49,8 +56,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
         dbhelper = new DatabaseHelper(getApplicationContext());
+        setContentView(R.layout.activity_main);
+
         beaconManager = new BeaconManager(getApplicationContext());
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
             @Override
@@ -63,7 +72,16 @@ public class MainActivity extends AppCompatActivity {
 
         user = dbhelper.getUserByID(1);
 
-        Log.i(APP_NAME,user.getUsername() + ", " + user.getLevel() + ", " + user.getId());
+        Log.i(APP_NAME, user.getUsername() + ", " + user.getLevel() + ", " + user.getId());
+
+        Button run = (Button) findViewById(R.id.myRunButton);
+        run.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                runaway();
+            }
+        });
+
 
         // set up listeners
         beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
@@ -152,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
     public void runBattle(){
 
         if(fightingMonster != null) {
+
             // load monster on screen
             int counter = 0;
             while(fightingMonster.getImage() == null && counter != 1000){}
@@ -170,6 +189,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Health 0", Toast.LENGTH_LONG).show();
                         user.increaseLevel();
                         dbhelper.updateUser(user);
+
+                        loadMainPage("Congratulations you defeated " + fightingMonster.getName() + " your new level is "+ user.getLevel());
                     }
                 }
             });
@@ -182,5 +203,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    
+    public void loadMainPage(String input){
+        setContentView(R.layout.mainpage_layout);
+        if (input.length() != 0){
+            TextView textV = (TextView) findViewById(R.id.inputTextView);
+            textV.setText(input);
+        }
+        Button accountSettings = (Button) findViewById(R.id.accountSettings);
+        accountSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadAccountSettings();
+            }
+        });
+    }
+
+    public void runaway(){
+        fightingMonster = null;
+        loadMainPage("");
+    }
+
+
+    public void loadAccountSettings(){
+        setContentView(R.layout.listview);
+        ArrayList<EncounterBean> array = dbhelper.getAllEncounters();
+        List<String> firstArray = new ArrayList();
+        List<String> secondArray = new ArrayList();
+        for(EncounterBean bean : array){
+            firstArray.add(bean.getMonsterID() + "");
+            secondArray.add(bean.getNumWins() + "");
+        }
+        String[] first = new String[firstArray.size()];
+        String[] second = new String[secondArray.size()];
+
+        first = firstArray.toArray(first);
+        second = secondArray.toArray(second);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.listview,R.id.firstList,first);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, R.layout.listview,R.id.secondList,second);
+
+    }
 }
