@@ -10,7 +10,10 @@ import android.view.MenuItem;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.estimote.sdk.BeaconManager;
@@ -150,23 +153,34 @@ public class MainActivity extends AppCompatActivity {
 
         if(fightingMonster != null) {
             // load monster on screen
+            int counter = 0;
+            while(fightingMonster.getImage() == null && counter != 1000){}
 
-            while(fightingMonster.getImage() == null){}
-
+            final ProgressBar progBar = (ProgressBar) findViewById(R.id.progressBar);
+            progBar.setMax(fightingMonster.getHealth());
+            progBar.setProgress(fightingMonster.getHealth());
             ImageView imgV = (ImageView) findViewById(R.id.myImageView);
             imgV.setImageBitmap(fightingMonster.getImage());
-            
+            imgV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fightingMonster.hit();
+                    progBar.setProgress(fightingMonster.getHealth());
+                    if (fightingMonster.getHealth() == 0) {
+                        Toast.makeText(MainActivity.this, "Health 0", Toast.LENGTH_LONG).show();
+                        user.increaseLevel();
+                        dbhelper.updateUser(user);
+                    }
+                }
+            });
 
-            boolean battleWon = true;
-            if (battleWon) {
-                user.increaseLevel();
-                dbhelper.updateUser(user);
-            } else {
-
-            }
+            //TextView textV = (TextView) findViewById(R.id.textView);
+            //textV.setText("Monster Name: " + fightingMonster.getName() + "/n Level: " + fightingMonster.getLevel());
         }
         else{
             Log.e("BITMAP", "Failed");
         }
     }
+
+    
 }

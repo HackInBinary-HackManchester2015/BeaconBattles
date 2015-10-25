@@ -145,4 +145,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
         data = this.getWritableDatabase();
         data.execSQL("UPDATE Encounters SET id_monster=" + encounter.getMonsterID() + ", num_wins=" + encounter.getNumWins() + " WHERE id_encounters=" + encounter.getId());
     }
+
+    public void revertBack(UserBean user){
+        data = this.getWritableDatabase();
+        data.execSQL("UPDATE User SET id_user=" + user.getId() + " , username=\"" + user.getUsername() + "\", level=1");
+
+    }
 }

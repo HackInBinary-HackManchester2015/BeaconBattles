@@ -33,10 +33,9 @@ public class Monster {
             this.level = obj.getInt("level");
             this.iD = obj.getInt("id");
             this.name = obj.getString("name");
-            URL url = new URL("http://192.168.224.130:5001/2.png");
-            //URL url = new URL(obj.getString("http://192.168.224.130:5001/2.png"));
+            //URL url = new URL("http://192.168.224.130:5001/7.jpg");
+            URL url = new URL(obj.getString("imgPath"));
             new HttpGetJsonTask().execute(url);
-            //new HttpGetJsonTask().doInBackground(url);
         } catch (Exception e ){
             Log.e("Monster","Exception caught");
         }
@@ -74,5 +73,11 @@ public class Monster {
 
         protected void onPostExecute(String byteStream) {
         }
+    }
+    public void hit(){
+        health --;
+    }
+    public int getLevel(){
+        return level;
     }
 }

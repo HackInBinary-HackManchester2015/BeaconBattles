@@ -3,5 +3,9 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="runAction">Run!!!</string>
+    <string name="monsterText">Tap to attack the monster</string>
+    <string name="settings">Settings</string>
+    <string name="accountHistory">Account History</string>
 
 </resources>
