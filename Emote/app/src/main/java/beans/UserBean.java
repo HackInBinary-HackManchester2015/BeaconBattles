@@ -58,7 +58,7 @@ public class UserBean
     }
 
     public void hit(){
-        health -=4;
+        health = health - (level *2);
     }
 
     public void setHealth(int health){

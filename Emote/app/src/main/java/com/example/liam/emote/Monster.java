@@ -52,6 +52,7 @@ public class Monster {
     }
 
 
+
     private class HttpGetJsonTask extends AsyncTask<URL, Void, String> {
         protected String doInBackground(URL... urls) {
             URL url = urls[0];
@@ -76,7 +77,7 @@ public class Monster {
         }
     }
     public void hit(){
-        health --;
+        health = health - level;
     }
     public int getLevel(){
         return level;

@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         dbhelper = new DatabaseHelper(getApplicationContext());
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.mainpage_layout);
 
         beaconManager = new BeaconManager(getApplicationContext());
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
@@ -72,22 +72,26 @@ public class MainActivity extends AppCompatActivity {
 
         user = dbhelper.getUserByID(1);
 
+        // umcomment this to change the back to level 1.
+        //user.setLevel(1);
+        //dbhelper.updateUser(user);
+
         Log.i(APP_NAME, user.getUsername() + ", " + user.getLevel() + ", " + user.getId());
-
-        Button run = (Button) findViewById(R.id.myRunButton);
-        run.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                runaway();
-            }
-        });
-
 
         // set up listeners
         beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
             @Override
             public void onEnteredRegion(Region region, List<Beacon> list) {
                 try {
+                    setContentView(R.layout.activity_main);
+                    Button run = (Button) findViewById(R.id.myRunButton);
+                    run.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            runaway();
+                        }
+                    });
+
                     new HttpGetJsonTask().execute(new URL("http://192.168.224.130:5000/monsters?userlevel=" + user.getLevel()));
 
                 } catch (Exception e) {
@@ -181,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             ImageView imgV = (ImageView) findViewById(R.id.myImageView);
 
             final ProgressBar userHealthBar = (ProgressBar) findViewById(R.id.userHealthBar);
-            user.setHealth(12 * user.getLevel());
+            user.setHealth(20 * user.getLevel());
             userHealthBar.setMax(user.getHealth());
             userHealthBar.setProgress(user.getHealth());
             Random rndNumGen = new Random();
@@ -200,16 +204,17 @@ public class MainActivity extends AppCompatActivity {
                         fightingMonster.hit();
                         userHealthBar.setProgress(user.getHealth());
                     }
-                    else if (monsterScore >= playerScore){
+                    else{
                         user.hit();
                         progBar.setProgress(fightingMonster.getHealth());
                     }
                     if (fightingMonster.getHealth() == 0) {
-                        Toast.makeText(MainActivity.this, "Health 0", Toast.LENGTH_LONG).show();
                         user.increaseLevel();
                         dbhelper.updateUser(user);
-
                         loadMainPage("Congratulations you defeated " + fightingMonster.getName() + " your new level is " + user.getLevel());
+                    }
+                    if(user.getHealth() == 0){
+                        loadMainPage("Unlucky!! " + fightingMonster.getName() + " defeated you, try again next time  :(");
                     }
                 }
             });
@@ -239,21 +244,21 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadAccountSettings(){
         setContentView(R.layout.listview);
+        TextView textV = (TextView) findViewById(R.id.listView);
         ArrayList<EncounterBean> array = dbhelper.getAllEncounters();
-        List<String> firstArray = new ArrayList();
-        List<String> secondArray = new ArrayList();
+            String x = "";
         for(EncounterBean bean : array){
-            firstArray.add(bean.getMonsterID() + "");
-            secondArray.add(bean.getNumWins() + "");
+            x += "You have beaten Monster ID:" + bean.getMonsterID() + " this many times: " + bean.getNumWins() + "\n \n";
         }
-        String[] first = new String[firstArray.size()];
-        String[] second = new String[secondArray.size()];
+        textV.setText(x);
 
-        first = firstArray.toArray(first);
-        second = secondArray.toArray(second);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.listview,R.id.firstList,first);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this, R.layout.listview,R.id.secondList,second);
+        Button back = (Button) findViewById(R.id.myBackButton);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadMainPage("");
+            }
+        });
 
     }
 }
