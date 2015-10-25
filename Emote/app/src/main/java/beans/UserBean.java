@@ -1,5 +1,7 @@
 package beans;
 
+import android.util.Log;
+
 /**
  * Created by tony on 24/10/2015.
  */
@@ -19,7 +21,6 @@ public class UserBean
         this.username = username;
         this.level = level;
     }
-
 
     public void setId(int id)
     {
@@ -49,5 +50,9 @@ public class UserBean
     public int getLevel()
     {
         return level;
+    }
+
+    public void increaseLevel(){
+        level ++;
     }
 }

@@ -2,17 +2,17 @@ package com.example.liam.emote;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.JsonReader;
+import android.os.AsyncTask;
 import android.util.Log;
 
-import org.json.JSONException;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import org.json.JSONObject;
 
-import java.net.URL;
-
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URLConnection;
+import java.net.URL;
 
 public class Monster {
     private int level = 0;
@@ -20,6 +20,9 @@ public class Monster {
     private int iD = 0;
     Bitmap bitmap = null;
     String name = "Exception caught";
+    InputStream stream;
+
+    private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
     Monster(String json) {
 
@@ -30,10 +33,12 @@ public class Monster {
             this.level = obj.getInt("level");
             this.iD = obj.getInt("id");
             this.name = obj.getString("name");
-            URL url = new URL(obj.getString("imagePath"));
-            bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            URL url = new URL("http://192.168.224.130:5001/2.png");
+            //URL url = new URL(obj.getString("http://192.168.224.130:5001/2.png"));
+            new HttpGetJsonTask().execute(url);
+            //new HttpGetJsonTask().doInBackground(url);
         } catch (Exception e ){
-
+            Log.e("Monster","Exception caught");
         }
     }
 
@@ -45,5 +50,29 @@ public class Monster {
     }
     public int getHealth(){
         return health;
+    }
+
+
+    private class HttpGetJsonTask extends AsyncTask<URL, Void, String> {
+        protected String doInBackground(URL... urls) {
+            URL url = urls[0];
+            try {
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+
+                Response response = HTTP_CLIENT.newCall(request).execute();
+                stream = response.body().byteStream();
+                bitmap = BitmapFactory.decodeStream(stream);
+
+                return "Worked";
+            } catch (IOException ex) {
+                Log.e("MONSTER_CLASS", "Could not retreive JSON from server:");
+            }
+            return null;
+        }
+
+        protected void onPostExecute(String byteStream) {
+        }
     }
 }

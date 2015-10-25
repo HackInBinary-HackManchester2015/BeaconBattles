@@ -4,7 +4,7 @@ import java.util.*;
 
 import beans.UserBean;
 import beans.EncounterBean;
-
+import android.util.Log;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -31,6 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)     //Called when accessed but database is not created
     {
+
         db.execSQL("CREATE TABLE User(" + colUserID + " INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY, " + colUserUsername + " VARCHAR(32) NOT NULL, " + colUserLevel + " INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE Encounters(" + colEncountersID + " INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY, " + colMonsterID + " VARCHAR(32) REFERENCES User(id_user) NOT NULL, " + colEncountersNumWins + " INTEGER NOT NULL)");
 
@@ -47,9 +48,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     public void addUser(UserBean user)
     {
-        data = this.getWritableDatabase();
-        data.execSQL("INSERT INTO User (" + colUserID + ", " + colUserUsername + ", " + colUserLevel + ") VALUES ('" + user.getId() + "', '" + user.getUsername() + "','" + user.getLevel() + "')");
-
+        if(getNumUsers() == 0)
+        {
+            data = this.getWritableDatabase();
+            data.execSQL("INSERT INTO User (" + colUserID + ", " + colUserUsername + ", " + colUserLevel + ") VALUES ('" + user.getId() + "', '" + user.getUsername() + "','" + user.getLevel() + "')");
+        } else
+        {
+            Log.i("DEBUG", "More than 1 user! Insert failed.");
+        }
     }
 
     public void addEncounter(EncounterBean encounter)
@@ -74,6 +80,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
             }
         }
         return user;
+    }
+
+    private int getNumUsers()
+    {
+        data = this.getReadableDatabase();
+        Cursor c = data.rawQuery("SELECT COUNT(id_user) FROM User", null);
+        int numUsers = 0;
+
+        if (c.moveToFirst())
+        {
+            while (!c.isAfterLast())
+            {
+                numUsers = c.getInt(0);
+                c.moveToNext();
+            }
+        }
+        return numUsers;
     }
 
     public EncounterBean getEncounterByID(int id)
@@ -113,7 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public void updateUser(UserBean user)
     {
         data = this.getWritableDatabase();
-        data.execSQL("UPDATE User SET id=" + user.getId() + ", username=" + user.getUsername() + ", level=" + user.getLevel());
+        data.execSQL("UPDATE User SET id_user=" + user.getId() + " , username=\"" + user.getUsername() + "\", level=" + user.getLevel());
 
     }
 
