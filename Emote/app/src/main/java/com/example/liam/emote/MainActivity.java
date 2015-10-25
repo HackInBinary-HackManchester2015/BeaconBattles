@@ -33,31 +33,36 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             new HttpGetJsonTask().execute(new URL("http://192.168.224.130:5000/monsters?userlevel=5"));
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            //ex.printStackTrace();
+            Toast.makeText(MainActivity.this, "Error",Toast.LENGTH_LONG).show();
         }
     }
 
     private class HttpGetJsonTask extends AsyncTask<URL, Void, String> {
         protected String doInBackground(URL... urls) {
             URL url = urls[0];
-
             try {
                 Request request = new Request.Builder()
                         .url(url)
                         .build();
-
                 Response response = HTTP_CLIENT.newCall(request).execute();
                 return response.body().string();
             } catch (IOException ex) {
-                Log.e(APP_NAME, "Could not retreive JSON from server:", ex);
+                //Log.e(APP_NAME, "Could not retreive JSON from server:", ex);
             }
             return null;
         }
 
         protected void onPostExecute(String jsonResult) {
-            Log.e(APP_NAME, jsonResult);
-            Toast.makeText(MainActivity.this, "Got", Toast.LENGTH_LONG).show();
+            if(jsonResult == null){
+                Log.e(APP_NAME, jsonResult);
+                Toast.makeText(MainActivity.this,"Null", Toast.LENGTH_LONG).show();
+            }else{
+                Monster monster = new Monster(jsonResult);
+                Toast.makeText(MainActivity.this, jsonResult, Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 

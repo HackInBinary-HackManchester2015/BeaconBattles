@@ -6,16 +6,10 @@ import com.estimote.sdk.Region;
 import android.app.*;
 import android.content.*;
 import android.widget.Toast;
-import android.widget.TextView;
 
 import com.estimote.sdk.Beacon;
 import java.util.List;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.BufferedInputStream;
 
-
-import java.util.UUID;
 
 public class myApplication extends Application {
 

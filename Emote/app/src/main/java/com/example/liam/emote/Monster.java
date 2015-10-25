@@ -3,6 +3,11 @@ package com.example.liam.emote;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.JsonReader;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URL;
 
 import java.io.InputStream;
@@ -16,37 +21,19 @@ public class Monster {
     Bitmap bitmap = null;
     String name = "Exception caught";
 
-    Monster(URLConnection url) {
+    Monster(String json) {
+
+        JSONObject obj = null;
         try {
-            url.connect();
-            InputStream in = url.getInputStream();
-            JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                switch (name) {
-                    case "health":
-                        this.health = reader.nextInt();
-                        break;
-                    case "id":
-                        this.iD = reader.nextInt();
-                        break;
-                    case "picture":
-                        bitmap = BitmapFactory.decodeStream((InputStream) new URL(reader.nextString()).getContent());
-                        break;
-                    case "level":
-                        this.level = reader.nextInt();
-                        break;
-                    case "name":
-                        this.name = reader.nextString();
-                        break;
-                    default:
-                        //Do nothing
-                        break;
-                }
-            }//end while
-        } catch (Exception e) {
-            //PANIC!!!!!!
+            obj = new JSONObject(json);
+            this.health = obj.getInt("health");
+            this.level = obj.getInt("level");
+            this.iD = obj.getInt("id");
+            this.name = obj.getString("name");
+            URL url = new URL(obj.getString("imagePath"));
+            bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch (Exception e ){
+
         }
     }
 
